@@ -1,0 +1,41 @@
+# Vendor (cloned reference repos, not part of our work)
+vendor/
+
+# Kaggle data dump (~100MB, can re-fetch)
+data/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.venv/
+venv/
+env/
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Local cache (graph state, models, etc.)
+cache/
+runs/
+*.log
+logs/
+
+# Secrets
+.env
+.env.local
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE
+.vscode/
+.idea/
