@@ -11,6 +11,18 @@ public score for a submitted notebook.
 |---|---|---|---|---|---|---|
 | 2026-06-01 | P0 | RandomAgent | 1500 actions/game | 0/183 (0%) | n/a | f17df1b |
 | 2026-06-01 | P1 | GraphAgent | 5 min/game, OFFLINE mode | **29/183 (15.85%)** | n/a | 6276f99 |
+| 2026-06-01 | P1 | GraphAgent (Kaggle) | ~19 min/game, full 8h budget | **37/183 (20.2%)** on public games | pending submit* | 666df91 |
+
+\* Kaggle kernel `devchandra/arc-agi-3-solo-graph-agent-v1` v3 ran COMPLETE
+end-to-end. More wall-time per game lifted the score 29→37 (lp85 2→5, dc22
+2→3, ft09 1→2, m0r0 1→2). **LB number still pending:** the competition's
+scoring submission is `submission.parquet`, produced by clicking "Submit to
+Competition" on the kernel version (Kaggle reruns against the hidden private
+environment set). The 37/183 is on the *public* games only; private-set
+generalization is unknown until submitted. NB: the LB metric appears to
+weight environment completion (top entry 1.20), and we complete 0/25
+environments fully — so the LB number may be modest even though our
+per-level rate is high.
 
 ## Phase 1 — full eval breakdown
 
