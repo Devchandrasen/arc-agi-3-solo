@@ -27,6 +27,9 @@ runs/
 *.log
 logs/
 
+# Validator-emitted scorecard (notebooks/_validate_submission_v1.py writes this)
+_validation_scorecard.json
+
 # Secrets
 .env
 .env.local
