@@ -103,6 +103,9 @@ def _resolve_agent(name: str) -> Type:
     if name == "random":
         from arc_agi3_solo.agents.random_agent import RandomAgent
         return RandomAgent
+    if name == "graph":
+        from arc_agi3_solo.agents.graph_agent import GraphAgent
+        return GraphAgent
     raise ValueError(f"unknown agent: {name!r}")
 
 
