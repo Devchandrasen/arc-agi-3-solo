@@ -1,0 +1,172 @@
+% ARC Prize 2026 Paper Track submission
+% Linked code submission: arc-agi-3 track, GraphAgent + successor phases
+% Target: Outstanding Pool (>4.5 avg). See ../docs/PAPER_TRACK_PLAN.md.
+
+\documentclass[10pt,letterpaper]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{microtype}
+\usepackage{amsmath, amssymb}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{hyperref}
+\usepackage{cleveref}
+\usepackage{xcolor}
+\hypersetup{colorlinks=true, linkcolor=blue, citecolor=blue, urlcolor=blue}
+
+\title{Offline Compositional Agents for ARC-AGI-3:\\
+       Object-Centric World Models with Triggered Symbolic Reasoning}
+\author{Chandrasen Pandey}
+\date{November 2026}
+
+% ---- Conventions ----
+% \todo{...}  : marks an open item to fix before submission
+% \note{...}  : marks an aside or self-question to resolve later
+\newcommand{\todo}[1]{\textcolor{red}{\textbf{TODO:} #1}}
+\newcommand{\note}[1]{\textcolor{blue}{\textit{[note: #1]}}}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+\todo{Write last. 150 words. Three sentences:
+(1) what we built and the inductive bias we exploit,
+(2) headline result on ARC-AGI-3 (X\% private / Y\% public) under the
+offline single-GPU constraint,
+(3) what scales: extrapolation toward 85\% via the scaling plot in \cref{sec:exp}.}
+\end{abstract}
+
+% ============================================================
+\section{Introduction}\label{sec:intro}
+
+\todo{1 page. Three beats:
+(1) Why ARC-AGI-3 matters: interactive grids force agents that build, not
+just retrieve. Frontier AI sits at 0.51\%, humans at 100\%; the gap is
+about inductive bias, not scale.
+(2) What we build: a fully-offline agent that learns a frame-graph,
+escalates to a learned forward model, and gates a slow symbolic step on
+uncertainty.
+(3) Why offline-by-design is the right framing for ARC-AGI-3's
+no-internet evaluation rule, not a workaround for it.}
+
+\note{Pull the headline number from RESULTS.md as soon as Phase 4 finishes
+its long-run.}
+
+% ============================================================
+\section{Prior work}\label{sec:prior}
+
+\todo{1 page. Three lines to differentiate from:
+(1) Program synthesis line: Greenblatt 2024 GPT-4o on ARC-AGI-1 (42\%),
+Hodel DSL series. We don't enumerate programs over a DSL.
+(2) Test-time training: ARChitects 2024 (53.5\%), Akyurek et al. 2024
+(47.5\%). We don't fine-tune at eval.
+(3) Object-centric \& planning: Locatello et al. (Slot Attention),
+MuZero/EfficientZero. We borrow the inductive biases but with bounded
+horizon and an explicit uncertainty trigger to a symbolic reasoner.
+
+Cite every 2026 ARC-AGI-3 preprint that lands before submission (set the
+arxiv alert per PAPER\_TRACK\_PLAN.md \S6).}
+
+% ============================================================
+\section{Method}\label{sec:method}
+
+\todo{2 pages. Three subsections matching the three rubric anchors:
+\Cref{sec:method-perception}, \Cref{sec:method-world}, \Cref{sec:method-trigger}.}
+
+\subsection{Frame perception and graph induction}\label{sec:method-perception}
+
+\todo{Describe FrameProcessor + GraphExplorer. The 4-connected component
+segmentation, the 5-priority-group action ordering (salient+medium >
+medium > salient > other > status-bar), the BlakeB-128 frame hash, the
+BFS-with-frontier graph. Cite the dolphin-in-a-coma `just-explore'
+reference repo (MIT) we ported as the P1 baseline.
+
+Figure: side-by-side of a raw 64x64 frame and its segmentation + status-bar
+mask + priority-group coloring.}
+
+\subsection{Learned object-centric forward model}\label{sec:method-world}
+
+\todo{Phase 3 content. Slot-attention-style encoder, k=4 step lookahead,
+trained on transitions logged by the P1 graph agent. Loss = next-frame
+reconstruction + dynamics consistency.
+
+Architecture diagram. Param count. Training compute (4-card hours on
+single RTX 5060 8GB Blackwell, bf16, gradient checkpointing if needed).}
+
+\subsection{Uncertainty-triggered symbolic reasoner}\label{sec:method-trigger}
+
+\todo{Phase 4 content. When policy entropy over the next-action
+distribution exceeds tau, hand the current frame + recent history to a
+small (<=3B) quantized LLM running locally. Returns a sketch program
+over our DSL; agent executes it, then resumes graph exploration.
+
+The hook here is that ``offline + triggered'' is the *inductive bias to
+ARC's no-internet rule itself*. Make this point sharply.}
+
+% ============================================================
+\section{Experiments}\label{sec:exp}
+
+\todo{2 pages.
+
+Main table: per-game score (levels solved / total levels) for each phase
+P1-P4 + final. Source: ../RESULTS.md.
+
+Ablations:
+- with/without status-bar masking
+- with/without priority groups (groups = [1] vs [5])
+- horizon k=1 vs k=4
+- trigger threshold tau sweep
+
+Scaling plot: score vs (model size, planning horizon, training compute).
+This is the *Progress* rubric axis -- make sure the trend extrapolates
+toward 85\%.
+
+Universality table: P5 deliverable. Same agent run on
+\textit{at least one} non-ARC benchmark (MiniGrid-BabyAI candidate).}
+
+% ============================================================
+\section{Analysis}\label{sec:analysis}
+
+\todo{1 page.
+
+Failure modes (named, with frame screenshots):
+- ?
+- ?
+- ?
+
+Trigger behaviour: how often does the symbolic reasoner fire? At what
+points in a game? Histogram.
+
+Qualitative case studies: pick 2-3 levels where the triggered reasoner
+clearly solved something the graph agent couldn't.}
+
+% ============================================================
+\section{Discussion}\label{sec:discuss}
+
+\todo{0.5 page. Single question: what is between us and 85\%?
+
+Be concrete: not ``more data'' but ``5x training compute, slot count from
+8 to 32, swap the 3B trigger LLM for a 7B''. Tie each axis to a measured
+gradient from \cref{sec:exp}.}
+
+% ============================================================
+\section{Conclusion}\label{sec:conclusion}
+
+\todo{0.25 page. One paragraph. State the contribution and the one
+sentence judges should remember.}
+
+% ============================================================
+\bibliographystyle{plain}
+\bibliography{references}
+
+\appendix
+
+\section{Reproducibility}
+\todo{Hyperparams, hardware (RTX 5060 8GB), runtime per phase,
+random seeds, environment versions (\texttt{arc\_agi 0.9.8 + arcengine 0.9.3}).
+Pointer to the open-source repo URL.}
+
+\section{Per-game scores}
+\todo{Full table of per-game levels-completed for each phase. Pull
+straight from RESULTS.md / runs/*.json.}
+
+\end{document}

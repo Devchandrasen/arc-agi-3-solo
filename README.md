@@ -7,16 +7,21 @@ Kaggle ARC Prize 2026 — ARC-AGI-3 entry. Build agents that play interactive gr
 - Prize pool: $850K (ARC-AGI-3 alone)
 - Frontier AI baseline: 0.51%, human: 100%
 
+**Also entered:** [ARC Prize 2026 Paper Track](https://www.kaggle.com/competitions/arc-prize-2026-paper-track) (juried, $450K pool). Plan in [docs/PAPER_TRACK_PLAN.md](docs/PAPER_TRACK_PLAN.md); draft in [paper/](paper/).
+
 ## Phases
 
 | Phase | Approach | Target | Status |
 |-------|----------|--------|--------|
-| 0 | Scaffold + random baseline | submit | in progress |
-| 1 | Graph exploration (port of dolphin-in-a-coma 3rd-place) | ≥0.30 local | pending |
+| 0 | Scaffold + random baseline | submit | done (f17df1b) |
+| 1 | Graph exploration (port of dolphin-in-a-coma 3rd-place) | ≥0.30 local | code shipped (ce21323); eval running |
 | 2 | Online frame-change CNN | ≥0.50 local | pending |
 | 3 | Object-centric world model + planning | ≥0.58 local | pending |
 | 4 | Small offline LLM as triggered reasoner | ≥0.62 local | pending |
-| 5 | Optimization & error analysis | submission | pending |
+| 5 | Cross-benchmark universality + ablations | n/a | pending |
+| 6 | Paper write + open-source cleanup | submission | pending |
+
+Score history: [RESULTS.md](RESULTS.md).
 
 ## Layout
 
@@ -43,7 +48,21 @@ pytest
 
 ## Kaggle submission
 
-Open `notebooks/submission_v0.ipynb`, attach the `arc-prize-2026-arc-agi-3` competition dataset, run all cells, commit, submit.
+- `notebooks/submission_v0.ipynb` — random baseline (Phase 0).
+- `notebooks/submission_v1.ipynb` — graph-exploration baseline (Phase 1). Self-contained: `Agent` base, `GraphExplorer`, `FrameProcessor`, and `GraphAgent` are inlined. Regenerate from `src/` via `python notebooks/_build_submission_v1.py`.
+
+Attach the `arc-prize-2026-arc-agi-3` competition dataset, run all cells, commit, submit.
+
+## Local offline eval
+
+```powershell
+$env:OPERATION_MODE = "offline"
+$env:ENVIRONMENTS_DIR = ".\data\environment_files"
+$env:PER_GAME_BUDGET_S = "300"
+python notebooks/_local_eval_p1.py
+```
+
+Writes `runs/p1_local_eval.{log,json}` with per-game scores.
 
 ## Reference repos (in `vendor/`)
 
