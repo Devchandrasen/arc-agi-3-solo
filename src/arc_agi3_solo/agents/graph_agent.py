@@ -175,13 +175,18 @@ class GraphAgent(Agent):
                     suspicious_transition=suspicious,
                 )
             except KeyError:
-                logger.warning("graph_explorer lost prior node; resetting from current frame")
+                # Stale last_hashed_frame (explorer was reset between calls).
+                # Reinit from current frame and drop the stale ref so we don't
+                # loop on the same KeyError next call.
+                logger.debug("graph_explorer lost prior node; resetting from current frame")
                 self.graph_explorer.reset()
                 self.graph_explorer.initialize(
                     start_node=hashed_frame,
                     num_candidates=num_actions,
                     group2remaining_candidate_ids=action_groups,
                 )
+                self.last_hashed_frame = None
+                self.last_action = None
 
         cur_results, _ = self._get_frame_buffers(hashed_frame, num_actions)
         available_mask = np.where(cur_results != -1)[0]

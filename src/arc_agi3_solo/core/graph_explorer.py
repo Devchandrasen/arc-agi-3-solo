@@ -151,13 +151,12 @@ class GraphExplorer:
         node_info = self._nodes[node]
 
         if node_info.closed:
-            if target_node == self._nodes[node].edge_data["target"][edge_idx]:
-                return
-            dist_to_frontier = self._dist.get(target_node, 0)
-            prev_target_node = self._nodes[node].edge_data["target"][edge_idx]
-            prev_dist_to_frontier = self._dist.get(prev_target_node, INFINITY)
-            if dist_to_frontier >= prev_dist_to_frontier:
-                return
+            # Vendor original tried to "fix broken transitions" by rewiring an
+            # already-tested edge to a closer target. That path falls through
+            # to node_info.record_test, which asserts the edge wasn't tested.
+            # Dropping the optimization: once a node is closed, treat its
+            # edges as immutable.
+            return
 
         if suspicious_transition:
             key = (node, edge_idx, target_node)
