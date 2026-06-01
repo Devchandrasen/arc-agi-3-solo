@@ -187,22 +187,58 @@ for env in dumped["environments"]:
     print(f"{env['id']:>22} | levels {env['levels_completed']:>2}/{env['level_count']:>2} | actions {env['actions']:>5} | resets {env['resets']}")
 '''
 
-INSTALL_CELL = '''import subprocess, sys, glob, os
+INSTALL_CELL = '''import subprocess, sys, glob, os, fnmatch
 
-WHEEL_DIR = "/kaggle/input/arc-prize-2026-arc-agi-3/arc_agi_3_wheels"
-wheels = sorted(glob.glob(os.path.join(WHEEL_DIR, "*.whl")))
-print(f"Found {len(wheels)} wheels in {WHEEL_DIR}")
-subprocess.check_call([
-    sys.executable, "-m", "pip", "install", "--quiet", "--no-index",
-    "--find-links", WHEEL_DIR, "arc-agi", "arcengine",
-])
-print("install ok")
+# The exact mount path of the competition data under /kaggle/input can vary,
+# so discover the wheel dir at runtime instead of hardcoding it.
+def _find_file_dir(root, pattern):
+    if not os.path.isdir(root):
+        return None
+    for dirpath, _dirs, files in os.walk(root):
+        if any(fnmatch.fnmatch(f, pattern) for f in files):
+            return dirpath
+    return None
+
+WHEEL_DIR = _find_file_dir("/kaggle/input", "arc_agi-*.whl")
+print("WHEEL_DIR =", WHEEL_DIR)
+
+try:
+    import arc_agi  # already importable?
+    print("arc_agi already importable; skipping install")
+except ImportError:
+    if WHEEL_DIR is None:
+        raise RuntimeError(
+            "Could not locate arc_agi wheels under /kaggle/input. "
+            "Is the arc-prize-2026-arc-agi-3 competition data attached?"
+        )
+    wheels = sorted(glob.glob(os.path.join(WHEEL_DIR, "*.whl")))
+    print(f"Found {len(wheels)} wheels in {WHEEL_DIR}")
+    subprocess.check_call([
+        sys.executable, "-m", "pip", "install", "--quiet", "--no-index",
+        "--find-links", WHEEL_DIR, "arc-agi", "arcengine",
+    ])
+    print("install ok")
 '''
 
 OFFLINE_CELL = '''import os
 
+# Discover the environment_files dir (per-game subdirs with metadata.json)
+# wherever the competition data mounted under /kaggle/input.
+def _find_env_dir(root):
+    if not os.path.isdir(root):
+        return None
+    for dirpath, dirs, _files in os.walk(root):
+        if os.path.basename(dirpath) == "environment_files":
+            return dirpath
+    return None
+
+ENV_DIR = (
+    _find_env_dir("/kaggle/input")
+    or "/kaggle/input/arc-prize-2026-arc-agi-3/environment_files"
+)
 os.environ["OPERATION_MODE"] = "competition"
-os.environ["ENVIRONMENTS_DIR"] = "/kaggle/input/arc-prize-2026-arc-agi-3/environment_files"
+os.environ["ENVIRONMENTS_DIR"] = ENV_DIR
+print("ENVIRONMENTS_DIR =", ENV_DIR, "exists:", os.path.isdir(ENV_DIR))
 
 from arc_agi import Arcade
 from arcengine import FrameData, FrameDataRaw, GameAction, GameState
