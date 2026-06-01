@@ -164,6 +164,14 @@ class GraphExplorer:
             if self.suspicious_transitions[key] < self.suspicious_transitions_threshold:
                 return
 
+        # An edge that's already recorded (result != 0) implies a re-visit
+        # under aliased node identity -- this happens under cluster-collapse
+        # (Phase 2+) where a single cluster ID maps to multiple distinct
+        # frames. Treat such re-records as no-ops to keep the graph
+        # consistent; the first recorded outcome wins.
+        if node_info.edge_data["result"][edge_idx] != 0:
+            return
+
         node_info.record_test(edge_idx, success, target_node)
 
         if success == 1:

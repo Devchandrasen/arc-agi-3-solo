@@ -28,8 +28,13 @@ logger = logging.getLogger(__name__)
 
 
 def _configure_offline(env_files_dir: str | os.PathLike[str] | None) -> None:
-    """Force COMPETITION mode (no internet) for `arc_agi.Arcade`."""
-    os.environ["OPERATION_MODE"] = "competition"
+    """Force OFFLINE mode (no socket at all) for local testing.
+
+    Respects an existing OPERATION_MODE if the caller has set one
+    explicitly -- on Kaggle the notebook uses 'competition', which still
+    talks to a local API server.
+    """
+    os.environ.setdefault("OPERATION_MODE", "offline")
     if env_files_dir is not None:
         os.environ["ENVIRONMENTS_DIR"] = str(env_files_dir)
 
@@ -106,6 +111,9 @@ def _resolve_agent(name: str) -> Type:
     if name == "graph":
         from arc_agi3_solo.agents.graph_agent import GraphAgent
         return GraphAgent
+    if name == "cnn-graph":
+        from arc_agi3_solo.agents.cnn_graph_agent import CNNGraphAgent
+        return CNNGraphAgent
     raise ValueError(f"unknown agent: {name!r}")
 
 
