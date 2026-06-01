@@ -236,13 +236,30 @@ ENV_DIR = (
     _find_env_dir("/kaggle/input")
     or "/kaggle/input/arc-prize-2026-arc-agi-3/environment_files"
 )
-os.environ["OPERATION_MODE"] = "competition"
 os.environ["ENVIRONMENTS_DIR"] = ENV_DIR
 print("ENVIRONMENTS_DIR =", ENV_DIR, "exists:", os.path.isdir(ENV_DIR))
 
 from arc_agi import Arcade
 from arcengine import FrameData, FrameDataRaw, GameAction, GameState
-print("arc_agi imported, mode =", os.environ["OPERATION_MODE"])
+
+# Pick the operation mode that actually works here. Kaggle evaluation has no
+# internet, so 'competition'/'normal' (which fetch an anonymous API key from
+# three.arcprize.org at Arcade() construction) fail with a DNS error. Probe
+# competition first (in case the scoring env whitelists the host), then fall
+# back to 'offline' -- the engine reads the local env files and computes wins
+# locally without ever opening a socket.
+OPERATION_MODE = "offline"
+for _m in ("competition", "offline"):
+    os.environ["OPERATION_MODE"] = _m
+    try:
+        _probe = Arcade()
+        OPERATION_MODE = _m
+        print(f"operation mode: {_m} (Arcade init ok, {len(_probe.available_environments)} envs)")
+        break
+    except Exception as e:
+        print(f"{_m} mode unavailable: {type(e).__name__}; trying next")
+os.environ["OPERATION_MODE"] = OPERATION_MODE
+print("arc_agi imported, using mode =", OPERATION_MODE)
 '''
 
 
