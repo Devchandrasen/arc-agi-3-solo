@@ -45,46 +45,61 @@ def _conv2d(x: np.ndarray, w: np.ndarray, stride: int = 1) -> np.ndarray:
 
 
 class RandomCNNEmbedder:
-    """Frozen random-init CNN: (64, 64) int frame -> 32-D L2-normalized embedding.
+    """Frozen random-init CNN: (64, 64) int frame -> spatial L2-normalized embedding.
 
-    Architecture: one-hot encode 16 colors -> Conv(16->16, k=5, s=2) -> ReLU
-    -> Conv(16->32, k=5, s=2) -> ReLU -> global mean pool -> L2-normalize.
+    Architecture: one-hot 16 colors -> Conv(16->16, k=5, s=2) -> ReLU
+    -> Conv(16->32, k=5, s=2) -> ReLU -> coarse `grid`x`grid` spatial pool
+    -> flatten -> L2-normalize.
 
-    Output ~14x14 spatial after the second conv (64 -> 30 -> 13 with k=5/s=2),
-    mean-pooled to a single 32-D vector.
+    **Why coarse spatial pool, not global mean pool (v0.1 change):** global
+    mean pooling is position-invariant. In several ARC-AGI-3 games (tr87,
+    wa30) frames differ mainly in *where* an object sits — exactly the
+    signal the agent needs — so global pooling collapsed thousands of
+    distinct frames into 1-2 clusters. A coarse grid pool keeps approximate
+    object position while still abstracting pixel-level noise.
+
+    With grid=4: embedding dim = 32 channels x 16 cells = 512.
 
     Seeded for reproducibility — same `seed` always yields the same weights.
     """
 
-    EMBED_DIM = 32
-
-    def __init__(self, seed: int = 0xA3A3) -> None:
+    def __init__(self, seed: int = 0xA3A3, grid: int = 4) -> None:
+        self.grid = grid
+        self.embed_dim = 32 * grid * grid
         rng = np.random.default_rng(seed)
         # He init for ReLU
         self.w1 = rng.normal(0, np.sqrt(2.0 / (16 * 5 * 5)), size=(16, 16, 5, 5)).astype(np.float32)
         self.w2 = rng.normal(0, np.sqrt(2.0 / (16 * 5 * 5)), size=(32, 16, 5, 5)).astype(np.float32)
 
+    def _spatial_pool(self, x: np.ndarray) -> np.ndarray:
+        """Average-pool (C, H, W) -> (C, grid, grid) by even spatial bins."""
+        c, h, w = x.shape
+        g = self.grid
+        # Bin edges along each axis.
+        hs = np.linspace(0, h, g + 1, dtype=int)
+        ws = np.linspace(0, w, g + 1, dtype=int)
+        out = np.zeros((c, g, g), dtype=np.float32)
+        for i in range(g):
+            for j in range(g):
+                block = x[:, hs[i]:hs[i + 1], ws[j]:ws[j + 1]]
+                if block.size:
+                    out[:, i, j] = block.mean(axis=(1, 2))
+        return out
+
     def embed(self, frame: np.ndarray) -> np.ndarray:
         if frame.ndim != 2 or frame.shape != (64, 64):
-            # Pad/crop to (64, 64). Frames are always 64x64 in ARC-AGI-3 but
-            # defensive.
             f = np.zeros((64, 64), dtype=np.uint8)
             h, w = min(frame.shape[0], 64), min(frame.shape[1], 64)
             f[:h, :w] = np.asarray(frame, dtype=np.uint8)[:h, :w]
             frame = f
-        # One-hot 16 colors: (16, 64, 64)
         x = np.zeros((16, 64, 64), dtype=np.float32)
         for c in range(16):
             x[c] = (frame == c).astype(np.float32)
-        # Conv1 -> ReLU
         x = _conv2d(x, self.w1, stride=2)  # (16, 30, 30)
         np.maximum(x, 0, out=x)
-        # Conv2 -> ReLU
         x = _conv2d(x, self.w2, stride=2)  # (32, 13, 13)
         np.maximum(x, 0, out=x)
-        # Global mean pool -> (32,)
-        emb = x.mean(axis=(1, 2))
-        # L2 normalize so distances are cosine-like
+        emb = self._spatial_pool(x).reshape(-1)  # (32*grid*grid,)
         n = np.linalg.norm(emb)
         if n > 1e-8:
             emb = emb / n

@@ -110,5 +110,5 @@ def test_embedder_works_on_real_arc_value_range() -> None:
     frame[10:40, 10:40] = 9  # blue blob
     frame[20:30, 50:60] = 11  # yellow blob
     emb = e.embed(frame)
-    assert emb.shape == (32,)
+    assert emb.shape == (e.embed_dim,)
     assert abs(np.linalg.norm(emb) - 1.0) < 1e-5

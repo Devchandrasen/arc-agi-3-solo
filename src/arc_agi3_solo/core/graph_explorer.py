@@ -305,6 +305,16 @@ class GraphExplorer:
                 i for i, d in enumerate(info.edge_data)
                 if d["distance"] <= lowest_dist and d["result"] == 1 and d["group"] <= self.active_group
             ]
+            if not candidates:
+                # Fallback 1: any successful edge in any group (BFS dead-end
+                # under cluster-collapse).
+                candidates = [
+                    i for i, d in enumerate(info.edge_data)
+                    if d["result"] == 1
+                ]
+            if not candidates:
+                # Fallback 2: no successful edge ever -- pick any edge index.
+                candidates = list(range(len(info.edge_data)))
             edge_idx = random.choice(candidates)
             reasoning = f"BFS-next edge {edge_idx} at dist {lowest_dist}"
         if return_reasoning:

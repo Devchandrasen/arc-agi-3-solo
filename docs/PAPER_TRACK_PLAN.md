@@ -48,8 +48,9 @@ Each phase below now has a **paper-deliverable** column: what graph/table/ablati
 
 | Phase | Code goal | Local target | Paper deliverable | Deadline |
 |---|---|---|---|---|
-| **P1** Graph exploration baseline (port `just-explore`) | Reproduce 3rd-place preview score | ≥0.30 | Baseline row in main results table + analysis of which game families it solves | 2026-06-25 (before M1) |
-| **P2** Online frame-change CNN | Add object segmentation from frame deltas | ≥0.50 | Ablation: with/without object channel + per-game delta | 2026-07-31 |
+| **P1** Graph exploration baseline (port `just-explore`) | Reproduce 3rd-place preview score | ≥0.30 | Baseline row in main results table + analysis of which game families it solves | 2026-06-25 (before M1) | **DONE: 29/183 = 15.85% local.** |
+| **P2a** ~~Whole-frame state clustering~~ | ~~Collapse aliased frames~~ | — | Negative-result ablation row | done | **REFUTED — see `docs/P2_FINDINGS.md`. State spaces are genuinely large, not pixel-inflated; clustering can't help. Code kept (`core/novelty.py`).** |
+| **P2** Online frame-**delta** salience model | Characterize *what each action changes* (region/size/color of the frame delta); bias action selection toward "progress-like" deltas | ≥0.50 | Ablation: delta-salience on/off; per-game delta-type histogram | 2026-07-31 | Pivoted from clustering per P2a finding. |
 | **P3** Object-centric world model + bounded MCTS | Learned forward model, plan k=4 steps | ≥0.58 | Scaling plot: score vs planning horizon, score vs model size | 2026-08-31 |
 | **P4** Triggered offline LLM reasoner | Small (≤3B) quantized LLM called only when policy entropy > τ | ≥0.65 | Trigger-rate vs accuracy tradeoff curve; case studies of triggered solves | 2026-09-25 (before M2) |
 | **P5** Cross-benchmark universality | Run same agent on MiniGrid-BabyAI or similar | n/a | Universality table (rubric axis #2) | 2026-10-10 |
