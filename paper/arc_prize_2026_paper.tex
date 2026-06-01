@@ -105,23 +105,75 @@ ARC's no-internet rule itself*. Make this point sharply.}
 % ============================================================
 \section{Experiments}\label{sec:exp}
 
-\todo{2 pages.
+\todo{2 pages. Build out from the P1 numbers below; add P2-P4 columns as
+they ship.}
 
-Main table: per-game score (levels solved / total levels) for each phase
-P1-P4 + final. Source: ../RESULTS.md.
+\subsection{Main table (in progress)}\label{sec:exp-main}
 
-Ablations:
+P1 (graph exploration, 5 min/game offline budget on the 25-game local
+training set, 2h05m total wall, 667k actions, RTX 5060 8GB):
+
+\begin{table}[h]
+\centering
+\small
+\begin{tabular}{lrrrr}
+\toprule
+Game & Levels & Total & \% & Actions \\
+\midrule
+ar25 & 2 & 8 & 25.0 & 35{,}141 \\
+bp35 & 1 & 9 & 11.1 & 17{,}671 \\
+cd82 & 2 & 6 & 33.3 & 37{,}780 \\
+cn04 & 0 & 6 & 0.0 & 21{,}418 \\
+dc22 & 2 & 6 & 33.3 & 34{,}502 \\
+ft09 & 1 & 6 & 16.7 & 23{,}751 \\
+g50t & 0 & 7 & 0.0 & 34{,}668 \\
+ka59 & 1 & 7 & 14.3 & 24{,}534 \\
+lf52 & 2 & 10 & 20.0 & 35{,}086 \\
+lp85 & 2 & 8 & 25.0 & 19{,}190 \\
+ls20 & 1 & 7 & 14.3 & 23{,}267 \\
+m0r0 & 1 & 6 & 16.7 & 15{,}502 \\
+r11l & 1 & 6 & 16.7 & 33{,}897 \\
+re86 & 0 & 8 & 0.0 & 16{,}945 \\
+s5i5 & 1 & 8 & 12.5 & 30{,}893 \\
+sb26 & 1 & 8 & 12.5 & 33{,}811 \\
+sc25 & 0 & 6 & 0.0 & 24{,}710 \\
+sk48 & 1 & 8 & 12.5 & 41{,}578 \\
+sp80 & 1 & 6 & 16.7 & 17{,}532 \\
+su15 & 0 & 9 & 0.0 & 14{,}075 \\
+tn36 & 1 & 7 & 14.3 & 31{,}256 \\
+tr87 & 0 & 6 & 0.0 & 14{,}773 \\
+tu93 & 4 & 9 & 44.4 & 31{,}913 \\
+vc33 & 4 & 7 & 57.1 & 33{,}412 \\
+wa30 & 0 & 9 & 0.0 & 20{,}137 \\
+\midrule
+\textbf{Total} & \textbf{29} & \textbf{183} & \textbf{15.85} & \textbf{667{,}417} \\
+\bottomrule
+\end{tabular}
+\caption{P1 graph-exploration baseline: per-game level completion on the
+25-game local set under a 5-min wall-clock budget per game, offline mode,
+single 8\,GB GPU. 19/25 games scored $\geq$1 level.}\label{tab:p1-main}
+\end{table}
+
+\todo{Phase 2-4 rows + LB column from notebook submissions.}
+
+\subsection{Ablations (to do)}\label{sec:exp-ablations}
+
+\todo{
 - with/without status-bar masking
 - with/without priority groups (groups = [1] vs [5])
-- horizon k=1 vs k=4
-- trigger threshold tau sweep
+- horizon k=1 vs k=4 (P3)
+- trigger threshold tau sweep (P4)}
 
-Scaling plot: score vs (model size, planning horizon, training compute).
-This is the *Progress* rubric axis -- make sure the trend extrapolates
-toward 85\%.
+\subsection{Scaling plot (to do)}\label{sec:exp-scaling}
 
-Universality table: P5 deliverable. Same agent run on
-\textit{at least one} non-ARC benchmark (MiniGrid-BabyAI candidate).}
+\todo{Score vs (model size, planning horizon, training compute). This is
+the \emph{Progress} rubric axis -- make sure the trend extrapolates
+toward 85\%.}
+
+\subsection{Universality table (P5)}\label{sec:exp-universality}
+
+\todo{Same agent run on \textit{at least one} non-ARC benchmark
+(MiniGrid-BabyAI candidate).}
 
 % ============================================================
 \section{Analysis}\label{sec:analysis}
