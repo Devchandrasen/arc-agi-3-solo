@@ -107,6 +107,10 @@ class GraphAgent(Agent):
             self.status_bar_mask = mask
             self.hashed_frame2action_results = {}
             self.hashed_frame2transitions = {}
+            # After level transition the previous-frame buffer is stale —
+            # drop it so transition-recording is skipped this call.
+            self.last_hashed_frame = None
+            self.last_action = None
 
         latest_np[self.status_bar_mask] = 16
         segmented_frame, frame_segments = self.frame_processor.segment_frame(latest_np)
