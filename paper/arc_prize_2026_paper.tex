@@ -178,18 +178,43 @@ toward 85\%.}
 % ============================================================
 \section{Analysis}\label{sec:analysis}
 
-\todo{1 page.
+\subsection{Three failure clusters identified in P1}\label{sec:analysis-clusters}
 
-Failure modes (named, with frame screenshots):
-- ?
-- ?
-- ?
+Instrumented 5-min re-runs on the 7 P1 zero-scoring games yielded a clear
+three-cluster taxonomy. Each cluster maps directly to one of the planned
+later phases.
 
-Trigger behaviour: how often does the symbolic reasoner fire? At what
-points in a game? Histogram.
+\paragraph{Cluster 1 — cycle trap (g50t).} Tiny reachable state space
+(139 unique frames in 5 min), 21\% of transitions return to the
+level-start frame, arrows-only. The graph BFS exhausts the reachable set
+fast and has no escape mechanism. Requires \emph{P4} (triggered offline
+LLM) to spot structural patterns in the frame history.
 
-Qualitative case studies: pick 2-3 levels where the triggered reasoner
-clearly solved something the graph agent couldn't.}
+\paragraph{Cluster 2 — wide-but-arrows (re86, tr87, wa30).} 10k+ unique
+frames discovered, 98--99\% transition rate, $\leq$200 deaths, arrows-only.
+The agent finds thousands of states but no level-completing one. Random-edge
+BFS is the bottleneck; the agent needs salience over arrow consequences.
+Requires \emph{P2} (frame-change CNN trained on arrow-action deltas).
+
+\paragraph{Cluster 3 — death-trap click-heavy (cn04, sc25, su15).}
+Moderate state space (5--9k frames), 250--908 deaths in 5 min,
+heavy click action use. The agent sees actionable UI but clicking the
+wrong segment ends the game. Requires \emph{P3} (object-centric world
+model to predict whether a clicked object leads to GAME\_OVER).
+
+\subsection{Per-phase upper-bound score gain}\label{sec:analysis-gains}
+
+If P2 fully unblocks Cluster 2 (25 unsolved levels across re86/tr87/wa30),
+local level rate jumps from 15.85\% to (29+25)/183 = \textbf{29.5\%}.
+P3 on top adds Cluster 3 (21 unsolved levels) for
+(29+25+21)/183 = \textbf{41.0\%}. These are upper bounds (assume full
+clearance), but they bound the per-phase return on engineering investment.
+
+\paragraph{Detailed per-game instrumented statistics:} see
+\texttt{docs/FAILURE\_MODES.md} in the open-source repository.
+
+\todo{Trigger behaviour after P4: how often does the symbolic reasoner
+fire? Histogram + qualitative case studies for Cluster 1 vs the others.}
 
 % ============================================================
 \section{Discussion}\label{sec:discuss}

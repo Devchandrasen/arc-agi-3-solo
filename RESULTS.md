@@ -47,14 +47,23 @@ Total wall: 7504s (~2h05m). Total actions: 667417 (~89 actions/sec average).
 | **Total** | **29** | **183** | **15.85%** | **667417** | **7504** |
 
 ### Observations
-- 19/25 games scored ≥1 level (~76% game coverage). 6/25 scored 0.
+- 19/25 games scored ≥1 level (~76% game coverage). 6/25 scored 0
+  (off by 1 vs the zero list below; su15 sometimes scores 1, sometimes 0 —
+  borderline).
 - Top scorers: vc33 (57.1%), tu93 (44.4%), cd82 (33.3%), dc22 (33.3%).
-- Zero-scorers (cn04, g50t, re86, sc25, su15, tr87, wa30) are candidates for
-  per-game failure-mode analysis in §Analysis of the paper. Hypotheses to
-  test: more aggressive (a) status-bar masking, (b) salient-color heuristics,
-  or (c) longer per-game budget.
 - 0/25 environments fully completed — every game still has unsolved levels.
-  P2-P4 work targets the harder levels, not just more levels of the same kind.
+- **Failure-mode analysis on the 7 zero-scoring games** identifies a
+  three-cluster taxonomy (see [docs/FAILURE_MODES.md](docs/FAILURE_MODES.md)):
+  - **Cluster 1 — cycle trap** (g50t): 139 unique frames, 21% L0 revisit
+    rate, arrows-only. P4 (triggered LLM) is the predicted fix.
+  - **Cluster 2 — wide-but-arrows** (re86, tr87, wa30): 10k+ unique
+    frames discovered but no level solved; arrows-only, low deaths.
+    P2 (frame-change CNN) is the predicted fix.
+  - **Cluster 3 — death-trap click-heavy** (cn04, sc25, su15): 250-908
+    deaths in 5 min, heavy click use. P3 (object-centric world model)
+    is the predicted fix.
+- Per-phase upper-bound gain (assuming each phase fully clears its cluster):
+  P2 → 29.5%, P2+P3 → 41.0%.
 
 ### Comparison to public leaderboard
 Live ARC-AGI-3 LB as of 2026-06-01 (top 5):
